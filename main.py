@@ -7,7 +7,6 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID, uuid4
 from orjson import dumps
-from sqlmodel import Field, Session, SQLModel, create_engine, select
 from dotenv import load_dotenv 
 import logging
 from src.database import create_db_and_tables, get_session

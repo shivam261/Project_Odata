@@ -7,7 +7,7 @@ from .service import authenticate_user, register_user
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login", response_model=Login_user_response,summary="User login",)
-def login(
+async def login(
     login_req: Login_user_request,
     session: Session = Depends(get_session)
 ) -> Login_user_response:
@@ -17,12 +17,12 @@ def login(
     RAISES HTTPException 401 if credentials are incorrect.
     """
     # Authenticate user
-    user = authenticate_user(login_req.username, login_req.password, session)
+    user = await authenticate_user(login_req.username, login_req.password, session)
 
     return Login_user_response(username=user.username)
 
 @router.post("/register", response_model=Register_user_response,summary="User registration",)
-def register(
+async def register(
     user: User,
     session: Session = Depends(get_session)
 ) -> Register_user_response:
@@ -31,6 +31,6 @@ def register(
     RETURNS a success message and the username upon successful registration.
     RAISES HTTPException 400 if the username already exists.
     """
-    user = register_user(user, session)
+    user = await register_user(user, session)
 
     return Register_user_response(username=user.username)

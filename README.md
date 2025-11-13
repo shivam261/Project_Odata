@@ -112,8 +112,14 @@ The application follows a clean service pattern with clear separation of concern
 
    Required environment variables:
    ```env
-   POSTGRES_SERVICE_URL=postgresql+asyncpg://user:password@localhost/dbname
+   # For FastAPI app (async)
+   POSTGRES_SERVICE_URL=postgresql+asyncpg://user:password@host:port/dbname
+
+   # For Alembic migrations (sync)
+   ALEMBIC_DATABASE_URL=postgresql://user:password@host:port/dbname?sslmode=require
    ```
+
+   **⚠️ Security Note**: The `.env` file contains sensitive credentials and is excluded from Git via `.gitignore`
 
 5. **Run database migrations**
    ```bash

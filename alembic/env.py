@@ -1,14 +1,17 @@
 import sys
 import os
 from logging.config import fileConfig
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 from sqlmodel import SQLModel
 
+# Load environment variables
+load_dotenv()
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.auth.model import User
-from src.database import POSTGRES_SERVICE_URL
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -29,6 +32,11 @@ target_metadata = SQLModel.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+def get_url():
+    """Get database URL from environment variable for synchronous connections"""
+    # Use synchronous URL for Alembic
+    return os.getenv("ALEMBIC_DATABASE_URL") or os.getenv("POSTGRES_SERVICE_URL", "").replace("+asyncpg", "")
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -42,7 +50,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -61,8 +69,11 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = get_url()
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
